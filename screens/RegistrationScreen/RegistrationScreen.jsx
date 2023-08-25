@@ -31,7 +31,7 @@ function RegistrationScreen() {
         style={{
           position: "absolute",
           color: "#1B4371",
-          top: 146,
+          top: 148,
           right: 16,
           fontFamily: "Roboto",
           fontSize: 16,

@@ -17,7 +17,7 @@ function LoginScreen() {
         style={{
           position: "absolute",
           color: "#1B4371",
-          top: 80,
+          top: 82,
           right: 16,
           fontFamily: "Roboto",
           fontSize: 16,
