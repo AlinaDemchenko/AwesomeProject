@@ -7,7 +7,4 @@ function PostsScreen() {
   )
 }
 
-
-  
-
 export default PostsScreen

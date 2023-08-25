@@ -1,14 +1,14 @@
 import React from "react";
 import {
-  StyledFormField,
   StyledRegistrationScreen,
-  StyledSubmitButton,
-  StyledTitle,
   StyledUserImage,
 } from "./RegistrationScreen.styled";
 import Input from "../../components/Input/Input";
 import { Text } from "react-native";
 import SVGAdd from "../../assets/images/add.svg";
+import Title from "../../components/Title/Title";
+import FormField from "../../components/FormField/FormField";
+import SubmitButton from "../../components/SubmitButton/SubmitButton";
 
 function RegistrationScreen() {
   return (
@@ -20,31 +20,19 @@ function RegistrationScreen() {
           style={{ position: "absolute", right: -12, bottom: 14 }}
         />
       </StyledUserImage>
-      <StyledTitle style={{ fontFamily: "Roboto-Medium", fontSize: 30 }}>
+      <Title style={{ fontFamily: "Roboto-Medium", fontSize: 30 }}>
         Реєстрація
-      </StyledTitle>
-      <StyledFormField>
+      </Title>
+      <FormField>
         <Input placeholder="Логін" />
         <Input placeholder="Адреса електронної пошти" />
         <Input placeholder="Пароль" />
-        <Text
-          style={{
-            position: "absolute",
-            color: "#1B4371",
-            bottom: 6,
-            right: 16,
-            fontFamily: "Roboto",
-            fontSize: 16,
-          }}
-        >
-          Показати
-        </Text>
-      </StyledFormField>
-      <StyledSubmitButton>
+      </FormField>
+      <SubmitButton>
         <Text style={{ color: "#fff", fontFamily: "Roboto", fontSize: 16 }}>
           Зареєстуватися
         </Text>
-      </StyledSubmitButton>
+      </SubmitButton>
       <Text style={{ color: "#1B4371", fontFamily: "Roboto", fontSize: 16 }}>
         Вже є акаунт? Увійти
       </Text>
