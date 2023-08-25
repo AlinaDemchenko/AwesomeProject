@@ -27,6 +27,18 @@ function RegistrationScreen() {
         <Input placeholder="Логін" />
         <Input placeholder="Адреса електронної пошти" />
         <Input placeholder="Пароль" />
+        <Text
+        style={{
+          position: "absolute",
+          color: "#1B4371",
+          top: 146,
+          right: 16,
+          fontFamily: "Roboto",
+          fontSize: 16,
+        }}
+      >
+        Показати
+      </Text>
       </FormField>
       <SubmitButton>
         <Text style={{ color: "#fff", fontFamily: "Roboto", fontSize: 16 }}>

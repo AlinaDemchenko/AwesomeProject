@@ -6,18 +6,6 @@ function FormField({ children }) {
   return (
     <StyledFormField>
       {children}
-      <Text
-        style={{
-          position: "absolute",
-          color: "#1B4371",
-          bottom: 6,
-          right: 16,
-          fontFamily: "Roboto",
-          fontSize: 16,
-        }}
-      >
-        Показати
-      </Text>
     </StyledFormField>
   );
 }
