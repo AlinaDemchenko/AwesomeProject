@@ -6,6 +6,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
@@ -23,6 +24,15 @@ function RegistrationScreen() {
   const [isLoginFocused, setIsLoginFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [passwordVisibility, setPasswordVisibility] = useState(true);
+
+  const handlePressIn = () => {
+    setPasswordVisibility(false);
+  };
+
+  const handlePressOut = () => {
+    setPasswordVisibility(true);
+  };
 
   const handleLoginFocus = () => {
     setIsLoginFocused(!isLoginFocused);
@@ -79,26 +89,31 @@ function RegistrationScreen() {
                 isFocused={isEmailFocused}
                 handleFocus={handleEmailFocus}
               />
-              <Input
-                placeholder="Пароль"
-                secureTextEntry={true}
-                value={password}
-                setter={setPassword}
-                isFocused={isPasswordFocused}
-                handleFocus={handlePasswordFocus}
-              />
-              <Text
-                style={{
-                  position: "absolute",
-                  color: "#1B4371",
-                  top: 148,
-                  right: 16,
-                  fontFamily: "Roboto",
-                  fontSize: 16,
-                }}
-              >
-                Показати
-              </Text>
+              <View style={{ position: "relative" }}>
+                <Input
+                  placeholder="Пароль"
+                  secureTextEntry={passwordVisibility}
+                  value={password}
+                  setter={setPassword}
+                  isFocused={isPasswordFocused}
+                  handleFocus={handlePasswordFocus}
+                />
+                <Pressable
+                  onPressIn={handlePressIn}
+                  onPressOut={handlePressOut}
+                  style={{ position: "absolute", top: 16, right: 16 }}
+                >
+                  <Text
+                    style={{
+                      color: "#1B4371",
+                      fontFamily: "Roboto",
+                      fontSize: 16,
+                    }}
+                  >
+                    Показати
+                  </Text>
+                </Pressable>
+              </View>
             </FormField>
             <SubmitButton submit={signUp}>
               <Text
@@ -109,6 +124,8 @@ function RegistrationScreen() {
             </SubmitButton>
             <Text
               style={{ color: "#1B4371", fontFamily: "Roboto", fontSize: 16 }}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
             >
               Вже є акаунт? Увійти
             </Text>

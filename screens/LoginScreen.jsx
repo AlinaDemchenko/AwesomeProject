@@ -5,6 +5,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
@@ -20,23 +21,15 @@ function LoginScreen() {
   const [password, setPassword] = useState("");
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [passwordVisibility, setPasswordVisibility] = useState(true);
 
-  // const [passwordVisibility, setPasswordVisibility] = useState(true);
-  // const [show, setShow] = useState('Показати')
+  const handlePressIn = () => {
+    setPasswordVisibility(false);
+  };
 
-  // const handlePasswordVisibility = () => {
-  //   if (show === 'Показати') {
-  //     setShow('Сховати');
-  //     setPasswordVisibility(!passwordVisibility);
-  //   } else if (show === 'Сховати') {
-  //     setShow('Показати');
-  //     setPasswordVisibility(!passwordVisibility);
-  //   }
-  // };
-
-  // <Pressable onPress={handlePasswordVisibility} style={styles.showPassword}>
-  //           <Text style={styles.showPasswordText}>{show}</Text>
-  //         </Pressable>
+  const handlePressOut = () => {
+    setPasswordVisibility(true);
+  };
 
   const handleEmailFocus = () => {
     setIsEmailFocused(!isEmailFocused);
@@ -73,26 +66,31 @@ function LoginScreen() {
                 isFocused={isEmailFocused}
                 handleFocus={handleEmailFocus}
               />
-              <Input
-                placeholder="Пароль"
-                secureTextEntry={true}
-                value={password}
-                setter={setPassword}
-                isFocused={isPasswordFocused}
-                handleFocus={handlePasswordFocus}
-              />
-              <Text
-                style={{
-                  position: "absolute",
-                  color: "#1B4371",
-                  top: 82,
-                  right: 16,
-                  fontFamily: "Roboto",
-                  fontSize: 16,
-                }}
-              >
-                Показати
-              </Text>
+              <View style={{ position: "relative" }}>
+                <Input
+                  placeholder="Пароль"
+                  secureTextEntry={passwordVisibility}
+                  value={password}
+                  setter={setPassword}
+                  isFocused={isPasswordFocused}
+                  handleFocus={handlePasswordFocus}
+                />
+                <Pressable
+                  onPressIn={handlePressIn}
+                  onPressOut={handlePressOut}
+                  style={{ position: "absolute", top: 16, right: 16 }}
+                >
+                  <Text
+                    style={{
+                      color: "#1B4371",
+                      fontFamily: "Roboto",
+                      fontSize: 16,
+                    }}
+                  >
+                    Показати
+                  </Text>
+                </Pressable>
+              </View>
             </FormField>
             <SubmitButton submit={signIn}>
               <Text

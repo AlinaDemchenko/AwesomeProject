@@ -25,10 +25,8 @@ function Input({placeholder, secureTextEntry, keyboardType, value, setter, isFoc
 export const styles = StyleSheet.create({
   input: {
     height: 50,
-    backgroundColor: "#F6F6F6",
     borderWidth: 1,
     borderStyle: "solid",
-    // borderColor: "#E8E8E8",
     paddingHorizontal: 16,
     borderRadius: 7,
     fontFamily: "Roboto",

@@ -7,7 +7,6 @@ function FormField({ children }) {
 
 export const styles = StyleSheet.create({
   formField: {
-    position: "relative",
     width: "100%",
     flex: 1,
     alignItems: "stretch",
