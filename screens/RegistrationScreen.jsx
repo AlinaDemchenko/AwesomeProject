@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import Input from "../components/Input";
 import {
-  Alert,
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
@@ -12,15 +10,15 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { Formik } from "formik";
 import SVGAdd from "../assets/images/add.svg";
+import Input from "../components/Input";
 import Title from "../components/Title";
 import FormField from "../components/FormField";
 import SubmitButton from "../components/SubmitButton";
+import * as yup from 'yup';
 
 function RegistrationScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [login, setLogin] = useState("");
   const [isLoginFocused, setIsLoginFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -46,9 +44,22 @@ function RegistrationScreen() {
     setIsPasswordFocused(!isPasswordFocused);
   };
 
-  const signUp = () => {
-    Alert.alert(`login: ${login}, password: ${password}, email: ${email}`);
-  };
+  const validationSchema = yup.object().shape({
+    login: yup.string()
+      .min(3, "Must be 3 characters or more")
+      .max(20, "Must be 20 characters or less")
+      .required("Required"),
+    email: yup
+      .string()
+      .email("Please enter valid email")
+      .required("Email Address is Required"),
+    password: yup
+      .string()
+      .min(8, ({ min }) => `Password must be at least ${min} characters`)
+      .required("Password is required")
+      .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+      .matches(/[0-9]/, "Must contain at least one digit"),
+  });
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -73,55 +84,112 @@ function RegistrationScreen() {
             <Title style={{ fontFamily: "Roboto-Medium", fontSize: 30 }}>
               Реєстрація
             </Title>
-            <FormField>
-              <Input
-                placeholder="Логін"
-                value={login}
-                setter={setLogin}
-                isFocused={isLoginFocused}
-                handleFocus={handleLoginFocus}
-              />
-              <Input
-                placeholder="Адреса електронної пошти"
-                keyboardType="email-address"
-                value={email}
-                setter={setEmail}
-                isFocused={isEmailFocused}
-                handleFocus={handleEmailFocus}
-              />
-              <View style={{ position: "relative" }}>
-                <Input
-                  placeholder="Пароль"
-                  secureTextEntry={passwordVisibility}
-                  value={password}
-                  setter={setPassword}
-                  isFocused={isPasswordFocused}
-                  handleFocus={handlePasswordFocus}
-                />
-                <Pressable
-                  onPressIn={handlePressIn}
-                  onPressOut={handlePressOut}
-                  style={{ position: "absolute", top: 16, right: 16 }}
-                >
-                  <Text
-                    style={{
-                      color: "#1B4371",
-                      fontFamily: "Roboto",
-                      fontSize: 16,
-                    }}
-                  >
-                    Показати
-                  </Text>
-                </Pressable>
-              </View>
-            </FormField>
-            <SubmitButton submit={signUp}>
-              <Text
-                style={{ color: "#fff", fontFamily: "Roboto", fontSize: 16 }}
-              >
-                Зареєстуватися
-              </Text>
-            </SubmitButton>
+            <Formik
+              validationSchema={validationSchema}
+              initialValues={{ email: "", password: "", login: "" }}
+              onSubmit={(values, { resetForm }) => {
+                console.log(values);
+                resetForm();
+              }}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                isValid,
+                touched,
+              }) => (
+                <>
+                  <FormField>
+                    <Input
+                      name="login"
+                      placeholder="Логін"
+                      value={values.login}
+                      setter={handleChange("login")}
+                      isFocused={isLoginFocused}
+                      handleFocus={handleLoginFocus}
+                      onBlur={handleBlur("login")}
+                    />
+                    <Input
+                      name="email"
+                      placeholder="Адреса електронної пошти"
+                      keyboardType="email-address"
+                      value={values.email}
+                      setter={handleChange("email")}
+                      isFocused={isEmailFocused}
+                      onBlur={handleBlur("email")}
+                      handleFocus={handleEmailFocus}
+                    />
+                    {errors.email && touched.email && (
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: "red",
+                          position: "absolute",
+                          left: 0,
+                          top: -15,
+                        }}
+                      >
+                        {errors.email}
+                      </Text>
+                    )}
+                    <View style={{ position: "relative" }}>
+                      <Input
+                        name="password"
+                        placeholder="Пароль"
+                        secureTextEntry={passwordVisibility}
+                        value={values.password}
+                        setter={handleChange("password")}
+                        isFocused={isPasswordFocused}
+                        handleFocus={handlePasswordFocus}
+                        onBlur={handleBlur("password")}
+                      />
+                      <Pressable
+                        onPressIn={handlePressIn}
+                        onPressOut={handlePressOut}
+                        style={{ position: "absolute", top: 16, right: 16 }}
+                      >
+                        <Text
+                          style={{
+                            color: "#1B4371",
+                            fontFamily: "Roboto",
+                            fontSize: 16,
+                          }}
+                        >
+                          Показати
+                        </Text>
+                      </Pressable>
+                      {errors.password && touched.password && (
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            color: "red",
+                            position: "absolute",
+                            left: 0,
+                            top: -15,
+                          }}
+                        >
+                          {errors.password}
+                        </Text>
+                      )}
+                    </View>
+                  </FormField>
+                  <SubmitButton onPress={handleSubmit} disabled={!isValid || !touched.email || !touched.password || !touched.login}>
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontFamily: "Roboto",
+                        fontSize: 16,
+                      }}
+                    >
+                      Зареєстуватися
+                    </Text>
+                  </SubmitButton>
+                </>
+              )}
+            </Formik>
             <Text
               style={{ color: "#1B4371", fontFamily: "Roboto", fontSize: 16 }}
               onPressIn={handlePressIn}

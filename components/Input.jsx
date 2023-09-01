@@ -1,25 +1,35 @@
-import React from 'react'
-import { StyleSheet, TextInput } from 'react-native';
+import React from "react";
+import { StyleSheet, TextInput } from "react-native";
 
-function Input({placeholder, secureTextEntry, keyboardType, value, setter, isFocused, handleFocus}) {
-
+function Input({
+  placeholder,
+  secureTextEntry,
+  keyboardType,
+  value,
+  setter,
+  isFocused,
+  handleFocus,
+  name,
+  onBlur
+}) {
   return (
     <TextInput
-    secureTextEntry={secureTextEntry}
-    onChangeText={setter}
-    value={value}
-    placeholder={placeholder}
-    placeholderTextColor="#BDBDBD"
-    keyboardType={keyboardType ? keyboardType : "default"}
-    style={[
-      styles.input,
-      { backgroundColor: isFocused ? '#fff' : "#F6F6F6"},
-      { borderColor: isFocused ? '#FF6C00' : "#E8E8E8"},
-    ]}
-    onFocus={handleFocus}
-    onBlur={handleFocus}
+      name={name}
+      secureTextEntry={secureTextEntry}
+      onChangeText={setter}
+      value={value}
+      placeholder={placeholder}
+      placeholderTextColor="#BDBDBD"
+      keyboardType={keyboardType ? keyboardType : "default"}
+      style={[
+        styles.input,
+        { backgroundColor: isFocused ? "#fff" : "#F6F6F6" },
+        { borderColor: isFocused ? "#FF6C00" : "#E8E8E8" },
+      ]}
+      onFocus={handleFocus}
+      onBlur={onBlur}
     />
-  )
+  );
 }
 
 export const styles = StyleSheet.create({
@@ -32,10 +42,7 @@ export const styles = StyleSheet.create({
     fontFamily: "Roboto",
     fontSize: 16,
     color: "#212121",
-},
-inputActive:{
-
-}
+  },
 });
 
-export default Input
+export default Input;

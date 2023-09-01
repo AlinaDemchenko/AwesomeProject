@@ -1,9 +1,12 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
-function SubmitButton({ children, submit }) {
+function SubmitButton({ children, onPress, disabled }) {
   return (
-    <TouchableOpacity style={styles.submitButton} onPress={submit}>{children}</TouchableOpacity>
+    <TouchableOpacity style={[
+      styles.submitButton,
+      { opacity: disabled ? 0.5 : 1 },
+    ]} onPress={onPress} disabled={disabled}>{children}</TouchableOpacity>
   );
 }
 
