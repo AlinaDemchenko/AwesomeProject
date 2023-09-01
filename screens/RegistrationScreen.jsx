@@ -16,7 +16,7 @@ import Input from "../components/Input";
 import Title from "../components/Title";
 import FormField from "../components/FormField";
 import SubmitButton from "../components/SubmitButton";
-import * as yup from 'yup';
+import { registrationSchema } from "../utils/yupSchema";
 
 function RegistrationScreen() {
   const [isLoginFocused, setIsLoginFocused] = useState(false);
@@ -44,23 +44,6 @@ function RegistrationScreen() {
     setIsPasswordFocused(!isPasswordFocused);
   };
 
-  const validationSchema = yup.object().shape({
-    login: yup.string()
-      .min(3, "Must be 3 characters or more")
-      .max(20, "Must be 20 characters or less")
-      .required("Required"),
-    email: yup
-      .string()
-      .email("Please enter valid email")
-      .required("Email Address is Required"),
-    password: yup
-      .string()
-      .min(8, ({ min }) => `Password must be at least ${min} characters`)
-      .required("Password is required")
-      .matches(/[A-Z]/, "Must contain at least one uppercase letter")
-      .matches(/[0-9]/, "Must contain at least one digit"),
-  });
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -85,7 +68,7 @@ function RegistrationScreen() {
               Реєстрація
             </Title>
             <Formik
-              validationSchema={validationSchema}
+              validationSchema={registrationSchema}
               initialValues={{ email: "", password: "", login: "" }}
               onSubmit={(values, { resetForm }) => {
                 console.log(values);
@@ -112,17 +95,7 @@ function RegistrationScreen() {
                       handleFocus={handleLoginFocus}
                       onBlur={handleBlur("login")}
                     />
-                    <Input
-                      name="email"
-                      placeholder="Адреса електронної пошти"
-                      keyboardType="email-address"
-                      value={values.email}
-                      setter={handleChange("email")}
-                      isFocused={isEmailFocused}
-                      onBlur={handleBlur("email")}
-                      handleFocus={handleEmailFocus}
-                    />
-                    {errors.email && touched.email && (
+                    {errors.login && touched.login && (
                       <Text
                         style={{
                           fontSize: 10,
@@ -132,9 +105,34 @@ function RegistrationScreen() {
                           top: -15,
                         }}
                       >
-                        {errors.email}
+                        {errors.login}
                       </Text>
                     )}
+                    <View style={{ position: "relative" }}>
+                      <Input
+                        name="email"
+                        placeholder="Адреса електронної пошти"
+                        keyboardType="email-address"
+                        value={values.email}
+                        setter={handleChange("email")}
+                        isFocused={isEmailFocused}
+                        onBlur={handleBlur("email")}
+                        handleFocus={handleEmailFocus}
+                      />
+                      {errors.email && touched.email && (
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            color: "red",
+                            position: "absolute",
+                            left: 0,
+                            top: -15,
+                          }}
+                        >
+                          {errors.email}
+                        </Text>
+                      )}
+                    </View>
                     <View style={{ position: "relative" }}>
                       <Input
                         name="password"
@@ -176,7 +174,15 @@ function RegistrationScreen() {
                       )}
                     </View>
                   </FormField>
-                  <SubmitButton onPress={handleSubmit} disabled={!isValid || !touched.email || !touched.password || !touched.login}>
+                  <SubmitButton
+                    onPress={handleSubmit}
+                    disabled={
+                      !isValid ||
+                      !touched.email ||
+                      !touched.password ||
+                      !touched.login
+                    }
+                  >
                     <Text
                       style={{
                         color: "#fff",
