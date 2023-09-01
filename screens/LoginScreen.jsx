@@ -17,8 +17,6 @@ import FormField from "../components/FormField";
 import SubmitButton from "../components/SubmitButton";
 import { loginSchema } from "../utils/yupSchema";
 
-
-
 function LoginScreen() {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -30,14 +28,6 @@ function LoginScreen() {
 
   const handlePressOut = () => {
     setPasswordVisibility(true);
-  };
-
-  const handleEmailFocus = () => {
-    setIsEmailFocused(!isEmailFocused);
-  };
-
-  const handlePasswordFocus = () => {
-    setIsPasswordFocused(!isPasswordFocused);
   };
 
   return (
@@ -55,47 +45,59 @@ function LoginScreen() {
           <View style={styles.loginScreen}>
             <Title>Увійти</Title>
             <Formik
-             validationSchema={loginSchema}
+              validationSchema={loginSchema}
               initialValues={{ email: "", password: "" }}
               onSubmit={(values, { resetForm }) => {
                 console.log(values);
-                resetForm(); 
+                resetForm();
               }}
             >
               {({
-     handleChange,
-     handleBlur,
-     handleSubmit,
-     values,
-     errors,
-     isValid,
-     touched,
-   }) => (
+                handleChange,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+              }) => (
                 <>
                   <FormField>
                     <Input
-                    name="email"
+                      name="email"
                       placeholder="Адреса електронної пошти"
                       keyboardType="email-address"
                       value={values.email}
                       setter={handleChange("email")}
                       isFocused={isEmailFocused}
-                      onBlur={handleBlur('email')}
-                      handleFocus={handleEmailFocus}
+                      handleFocus={()=>setIsEmailFocused(true)}
+                      onBlur={()=>{
+                        setIsEmailFocused(false);
+                  }}
                     />
-                     {(errors.email && touched.email)  &&
-         <Text style={{ fontSize: 10, color: 'red', position: "absolute", left: 0, top: -15}}>{errors.email}</Text>
-       }
+                    {errors.email && touched.email && (
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: "red",
+                          position: "absolute",
+                          left: 0,
+                          top: -15,
+                        }}
+                      >
+                        {errors.email}
+                      </Text>
+                    )}
                     <View style={{ position: "relative" }}>
                       <Input
-                            name="password"
+                        name="password"
                         placeholder="Пароль"
                         secureTextEntry={passwordVisibility}
                         value={values.password}
                         setter={handleChange("password")}
                         isFocused={isPasswordFocused}
-                        handleFocus={handlePasswordFocus}
-                        onBlur={handleBlur('password')}
+                        handleFocus={() => setIsPasswordFocused(true)}
+                        onBlur={() => {
+                          setIsPasswordFocused(false)
+                        }}
                       />
                       <Pressable
                         onPressIn={handlePressIn}
@@ -112,12 +114,25 @@ function LoginScreen() {
                           Показати
                         </Text>
                       </Pressable>
-                    {(errors.password && touched.password) &&
-         <Text style={{ fontSize: 10, color: 'red', position: "absolute", left: 0, top: -15}}>{errors.password}</Text>
-       }
+                      {errors.password && touched.password && (
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            color: "red",
+                            position: "absolute",
+                            left: 0,
+                            top: -15,
+                          }}
+                        >
+                          {errors.password}
+                        </Text>
+                      )}
                     </View>
                   </FormField>
-                  <SubmitButton onPress={handleSubmit} disabled={!isValid || !touched.email || !touched.password}>
+                  <SubmitButton
+                    onPress={handleSubmit}
+                    // disabled={!isValid || !touched.email || !touched.password}
+                  >
                     <Text
                       style={{
                         color: "#fff",
@@ -166,7 +181,7 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     borderTopLeftRadius: 25,
     position: "relative",
-  }
+  },
 });
 
 export default LoginScreen;

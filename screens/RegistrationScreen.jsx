@@ -32,18 +32,6 @@ function RegistrationScreen() {
     setPasswordVisibility(true);
   };
 
-  const handleLoginFocus = () => {
-    setIsLoginFocused(!isLoginFocused);
-  };
-
-  const handleEmailFocus = () => {
-    setIsEmailFocused(!isEmailFocused);
-  };
-
-  const handlePasswordFocus = () => {
-    setIsPasswordFocused(!isPasswordFocused);
-  };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -75,15 +63,7 @@ function RegistrationScreen() {
                 resetForm();
               }}
             >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                isValid,
-                touched,
-              }) => (
+              {({ handleChange, handleSubmit, values, errors, touched }) => (
                 <>
                   <FormField>
                     <Input
@@ -92,8 +72,10 @@ function RegistrationScreen() {
                       value={values.login}
                       setter={handleChange("login")}
                       isFocused={isLoginFocused}
-                      handleFocus={handleLoginFocus}
-                      onBlur={handleBlur("login")}
+                      handleFocus={() => setIsLoginFocused(true)}
+                      onBlur={() => {
+                        setIsLoginFocused(false);
+                      }}
                     />
                     {errors.login && touched.login && (
                       <Text
@@ -116,8 +98,10 @@ function RegistrationScreen() {
                         value={values.email}
                         setter={handleChange("email")}
                         isFocused={isEmailFocused}
-                        onBlur={handleBlur("email")}
-                        handleFocus={handleEmailFocus}
+                        handleFocus={() => setIsEmailFocused(true)}
+                        onBlur={() => {
+                          setIsEmailFocused(false);
+                        }}
                       />
                       {errors.email && touched.email && (
                         <Text
@@ -141,8 +125,10 @@ function RegistrationScreen() {
                         value={values.password}
                         setter={handleChange("password")}
                         isFocused={isPasswordFocused}
-                        handleFocus={handlePasswordFocus}
-                        onBlur={handleBlur("password")}
+                        handleFocus={() => setIsPasswordFocused(true)}
+                        onBlur={() => {
+                          setIsPasswordFocused(false)
+                        }}
                       />
                       <Pressable
                         onPressIn={handlePressIn}
@@ -174,15 +160,7 @@ function RegistrationScreen() {
                       )}
                     </View>
                   </FormField>
-                  <SubmitButton
-                    onPress={handleSubmit}
-                    disabled={
-                      !isValid ||
-                      !touched.email ||
-                      !touched.password ||
-                      !touched.login
-                    }
-                  >
+                  <SubmitButton onPress={handleSubmit}>
                     <Text
                       style={{
                         color: "#fff",

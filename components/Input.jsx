@@ -10,7 +10,7 @@ function Input({
   isFocused,
   handleFocus,
   name,
-  onBlur
+  onBlur,
 }) {
   return (
     <TextInput
