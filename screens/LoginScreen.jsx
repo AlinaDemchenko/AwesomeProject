@@ -17,7 +17,7 @@ import FormField from "../components/FormField";
 import SubmitButton from "../components/SubmitButton";
 import { loginSchema } from "../utils/yupSchema";
 
-function LoginScreen() {
+function LoginScreen({ navigation }) {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [passwordVisibility, setPasswordVisibility] = useState(true);
@@ -48,17 +48,12 @@ function LoginScreen() {
               validationSchema={loginSchema}
               initialValues={{ email: "", password: "" }}
               onSubmit={(values, { resetForm }) => {
-                console.log(values);
                 resetForm();
+                console.log(values);
+                navigation.navigate("Home");
               }}
             >
-              {({
-                handleChange,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-              }) => (
+              {({ handleChange, handleSubmit, values, errors, touched }) => (
                 <>
                   <FormField>
                     <Input
@@ -68,10 +63,10 @@ function LoginScreen() {
                       value={values.email}
                       setter={handleChange("email")}
                       isFocused={isEmailFocused}
-                      handleFocus={()=>setIsEmailFocused(true)}
-                      onBlur={()=>{
+                      handleFocus={() => setIsEmailFocused(true)}
+                      onBlur={() => {
                         setIsEmailFocused(false);
-                  }}
+                      }}
                     />
                     {errors.email && touched.email && (
                       <Text
@@ -96,7 +91,7 @@ function LoginScreen() {
                         isFocused={isPasswordFocused}
                         handleFocus={() => setIsPasswordFocused(true)}
                         onBlur={() => {
-                          setIsPasswordFocused(false)
+                          setIsPasswordFocused(false);
                         }}
                       />
                       <Pressable
@@ -146,11 +141,12 @@ function LoginScreen() {
                 </>
               )}
             </Formik>
-            <Text
-              style={{ color: "#1B4371", fontFamily: "Roboto", fontSize: 16 }}
-            >
+            <Text style={styles.link}>
               Немає акаунту?{" "}
-              <Text style={{ textDecorationLine: "underline" }}>
+              <Text
+                onPress={() => navigation.navigate("Registration")}
+                style={[styles.link, { textDecorationLine: "underline" }]}
+              >
                 Зареєструватися
               </Text>
             </Text>
@@ -162,6 +158,11 @@ function LoginScreen() {
 }
 
 export const styles = StyleSheet.create({
+  link: {
+    color: "#1B4371",
+    fontFamily: "Roboto",
+    fontSize: 16,
+  },
   imageBackground: {
     flex: 1,
     width: "100%",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ImageBackground,
   Keyboard,
@@ -11,14 +11,14 @@ import {
   View,
 } from "react-native";
 import { Formik } from "formik";
+import { registrationSchema } from "../utils/yupSchema";
 import SVGAdd from "../assets/images/add.svg";
 import Input from "../components/Input";
 import Title from "../components/Title";
 import FormField from "../components/FormField";
 import SubmitButton from "../components/SubmitButton";
-import { registrationSchema } from "../utils/yupSchema";
 
-function RegistrationScreen() {
+function RegistrationScreen({ navigation }) {
   const [isLoginFocused, setIsLoginFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -59,8 +59,9 @@ function RegistrationScreen() {
               validationSchema={registrationSchema}
               initialValues={{ email: "", password: "", login: "" }}
               onSubmit={(values, { resetForm }) => {
-                console.log(values);
                 resetForm();
+                console.log(values);
+                navigation.navigate("Home");
               }}
             >
               {({ handleChange, handleSubmit, values, errors, touched }) => (
@@ -127,7 +128,7 @@ function RegistrationScreen() {
                         isFocused={isPasswordFocused}
                         handleFocus={() => setIsPasswordFocused(true)}
                         onBlur={() => {
-                          setIsPasswordFocused(false)
+                          setIsPasswordFocused(false);
                         }}
                       />
                       <Pressable
@@ -175,11 +176,17 @@ function RegistrationScreen() {
               )}
             </Formik>
             <Text
-              style={{ color: "#1B4371", fontFamily: "Roboto", fontSize: 16 }}
+              style={styles.link}
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
             >
-              Вже є акаунт? Увійти
+              Вже є акаунт?{" "}
+              <Text
+                onPress={() => navigation.navigate("Login")}
+                style={[styles.link, { textDecorationLine: "underline" }]}
+              >
+                Увійти
+              </Text>
             </Text>
           </View>
         </ImageBackground>
@@ -189,6 +196,11 @@ function RegistrationScreen() {
 }
 
 export const styles = StyleSheet.create({
+  link: {
+    color: "#1B4371",
+    fontFamily: "Roboto",
+    fontSize: 16,
+  },
   imageBackground: {
     flex: 1,
     width: "100%",

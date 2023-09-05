@@ -1,5 +1,5 @@
 import {
-  View,
+  View, Text
 } from "react-native";
 
 
@@ -7,7 +7,7 @@ import {
 function PostsScreen() {
 
   return (
-   <View></View>
+   <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}><Text>PostsScreen</Text></View>
   );
 }
 
