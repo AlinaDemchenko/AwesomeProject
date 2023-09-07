@@ -7,9 +7,11 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { AntDesign } from "@expo/vector-icons";
+import { useState } from "react";
 
 function Home({ navigation, route }) {
   const Tabs = createBottomTabNavigator();
+
 
   const createPostsScreenOptions = {
     tabBarIcon: ({ focused }) => (

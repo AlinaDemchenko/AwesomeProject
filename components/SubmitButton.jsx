@@ -5,7 +5,7 @@ function SubmitButton({ children, onPress, disabled }) {
   return (
     <TouchableOpacity style={[
       styles.submitButton,
-      { opacity: disabled ? 0.5 : 1 },
+      { backgroundColor: disabled ? "#F6F6F6" : "#FF6C00" },
     ]} onPress={onPress} disabled={disabled}>{children}</TouchableOpacity>
   );
 }
@@ -13,7 +13,6 @@ function SubmitButton({ children, onPress, disabled }) {
 export const styles = StyleSheet.create({
   submitButton: {
     maxHeight: 51,
-    backgroundColor: "#FF6C00",
     width: "100%",
     borderRadius: 100,
     flex: 1,
