@@ -1,15 +1,16 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import Post from "../components/Post";
+import { useSelector } from "react-redux";
 
 function PostsScreen() {
+  const posts = useSelector((state) => state.posts);
+
   return (
-    <View style={styles.postsContainer}>
-      <Post
-        name="oleg"
-        photo="https://24tv.ua/resources/photos/news/202306/2343286_16425282.jpg?v=1687956960000&w=1662&h=1078&fit=cover%27&output=webp"
-        location="Kazantip, Ukraine"
-      />
-    </View>
+    <ScrollView style={styles.postsContainer}>
+      {posts?.length > 0 && posts.map((post) => (
+        <Post post={post} key={post.id}/>
+      ))}
+    </ScrollView>
   );
 }
 

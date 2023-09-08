@@ -16,11 +16,22 @@ import Input from "../components/Input";
 import FormField from "../components/FormField";
 import SubmitButton from "../components/SubmitButton";
 import { loginSchema } from "../utils/yupSchema";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function LoginScreen({ navigation }) {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [passwordVisibility, setPasswordVisibility] = useState(true);
+
+  async function clearLocalStorage() {
+    try {
+      await AsyncStorage.clear();
+      console.log('Локальное хранилище очищено.');
+    } catch (error) {
+      console.error('Произошла ошибка при очистке локального хранилища:', error);
+    }
+  }
+   clearLocalStorage();
 
   const handlePressIn = () => {
     setPasswordVisibility(false);

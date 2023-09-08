@@ -6,25 +6,28 @@ import {
   StyleSheet,
   Image,
   TextInput,
+  Alert,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { addPost } from "../redux/reducer";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
 import SVGlocation from "../assets/images/map-pin.svg";
 import SubmitButton from "../components/SubmitButton";
 
-function CreatePostsScreen({ navigation, route }) {
+function CreatePostsScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [photo, setPhoto] = useState(null);
-  const [name, setName] = useState(null);
+  const [name, setName] = useState("");
   const [location, setLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [address, setAddress] = useState(null);
-  const [pictureData, setPictureData] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     (async () => {
@@ -33,24 +36,20 @@ function CreatePostsScreen({ navigation, route }) {
         console.log("Permission to access location was denied");
       }
       let currentLocation = await Location.getCurrentPositionAsync({});
-      const coords = {
+      const reverseGeocodedAddress = await Location.reverseGeocodeAsync({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+      });
+      setLocation({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
         accuracy: currentLocation.coords.accuracy,
-      };
-      setLocation(coords);
-      const reverseGeocodedAddress = await Location.reverseGeocodeAsync({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
       });
-      setAddress({
-        city: reverseGeocodedAddress[0].city,
-        country: reverseGeocodedAddress[0].country,
-      });
+      setAddress(`${reverseGeocodedAddress[0].city},
+      ${reverseGeocodedAddress[0].country}`);
     })();
   }, []);
-  
-  
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -58,32 +57,74 @@ function CreatePostsScreen({ navigation, route }) {
       setHasPermission(status === "granted");
     })();
   }, []);
-  
+
   if (hasPermission === null) {
     return <View />;
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
-  
+
   const clearPage = () => {
     setPhoto(null);
     setUserLocation(null);
-    setName(null);
+    setName("");
   };
-  
-  const handleSubmit = () => {
-    // if (userLocation){ const geocodedLocation = await Location.geocodeAsync(userLocation)}
-    setPictureData({
-      photo,
-      address: userLocation ? userLocation : address,
-      name: name ? name : "",
-      location,
-    });
-    console.log(pictureData);
-    clearPage();
-    navigation.navigate("Posts");
+
+  const handleShot = async () => {
+    if (cameraRef) {
+      const { uri } = await cameraRef.takePictureAsync();
+      await MediaLibrary.createAssetAsync(uri);
+      setPhoto(uri);
+    }
   };
+
+  const getUserLocationCoords = async () => {
+    const geocodedLocation = await Location.geocodeAsync(userLocation);
+    // console.log("geocodedLocation: ", geocodedLocation);
+    if (!geocodedLocation[0]?.longitude) {
+      // console.log(geocodedLocation[0]?.longitude);
+      Alert.alert(`Failed to get coordinates of ${userLocation}`);
+    }
+    if (geocodedLocation[0]?.longitude) {
+      return geocodedLocation[0]
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (userLocation) {
+    const userCoords = await getUserLocationCoords();
+      if(userCoords){
+        dispatch(
+          addPost({
+            photo,
+            address: userLocation,
+            name: name.length > 0 ? name : "",
+            location: userCoords,
+          })
+          );
+
+      console.log('location: ', location);
+          navigation.navigate("Posts");
+          clearPage();
+          return
+      }
+    }
+    if (location && !userLocation) {
+      dispatch(
+        addPost({
+          photo,
+         address,
+          name: name.length > 0 ? name : "",
+          location,
+        })
+        );
+
+      console.log('location: ', location);
+        navigation.navigate("Posts");
+        clearPage();
+      }
+    };
 
   return (
     <View style={styles.createContainer}>
@@ -108,16 +149,7 @@ function CreatePostsScreen({ navigation, route }) {
               >
                 <FontAwesome name="rotate-right" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={async () => {
-                  if (cameraRef) {
-                    const { uri } = await cameraRef.takePictureAsync();
-                    await MediaLibrary.createAssetAsync(uri);
-                    setPhoto(uri);
-                  }
-                }}
-              >
+              <TouchableOpacity style={styles.button} onPress={handleShot}>
                 <View style={styles.takePhoto}>
                   <FontAwesome name="camera" size={24} color="white" />
                 </View>

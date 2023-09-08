@@ -3,27 +3,27 @@ import SVGcomment from "../assets/images/message-circle.svg";
 import SVGlocation from "../assets/images/map-pin.svg";
 import { useNavigation } from "@react-navigation/native";
 
-const Post = ({ photo, name, comments, location }) => {
+const Post = ({post}) => {
     const navigation = useNavigation();
   return (
-    <View>
+    <View style={styles.postContainer}>
       <View style={styles.photoBlock}>
         <Image
-          source={{ uri: photo }}
+          source={{ uri: post.photo }}
           style={{ width: "100%", height: "100%" }}
         />
       </View>
-      <Text style={styles.postText}>{name}</Text>
+      <Text style={styles.postText}>{post.name}</Text>
       <View style={[styles.postDetails, {justifyContent:"space-between"}]}>
         <Pressable style={styles.postDetails} onPress={() => navigation.navigate("Comments")}>
           <SVGcomment width={24} height={24} style={{ marginRight: 6 }} />
           <Text
             style={{ color: "#BDBDBD", fontFamily: "Roboto", fontSize: 16 }}
           >
-            {comments ? comments : 0}
+            {post.comments ? post.comments : 0}
           </Text>
         </Pressable>
-        <Pressable style={styles.postDetails} onPress={() => navigation.navigate("Map")}>
+        <Pressable style={styles.postDetails} onPress={() => navigation.navigate("Map", { post: post })}>
           <SVGlocation width={24} height={24} style={{ marginRight: 4 }} />
           <Text
             style={{
@@ -33,7 +33,7 @@ const Post = ({ photo, name, comments, location }) => {
               textDecorationLine: "underline",
             }}
           >
-            {location}
+            {post.address}
           </Text>
         </Pressable>
       </View>
@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
   postContainer: {
     height: 299,
     width: "100%",
+    marginBottom: 34,
   },
   photoBlock: {
     height: 240,

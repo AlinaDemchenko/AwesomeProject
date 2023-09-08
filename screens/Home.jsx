@@ -7,11 +7,9 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { AntDesign } from "@expo/vector-icons";
-import { useState } from "react";
 
 function Home({ navigation, route }) {
   const Tabs = createBottomTabNavigator();
-
 
   const createPostsScreenOptions = {
     tabBarIcon: ({ focused }) => (
@@ -92,32 +90,63 @@ function Home({ navigation, route }) {
     ),
   }
 
-  function getHeaderTitle(route) {
-    const routeName = getFocusedRouteNameFromRoute(route) ?? "Posts";
+  // function getHeaderTitle(route) {
+  //   const routeName = getFocusedRouteNameFromRoute(route) ?? "Posts";
 
-    if (routeName === "Profile" ) {
-      return (
-        <>
-          <Tabs.Screen
-            name="Posts"
-            component={PostsScreen}
-            options={postsScreenOptions}
-          />
-          <Tabs.Screen
-            name="Profile"
-            component={ProfileScreen}
-            options={profileScreenOptions}
-          />
-          <Tabs.Screen
-            name="CreatePosts"
-            component={CreatePostsScreen}
-            options={createPostsScreenOptions}
-          />
-        </>
-      )} else {
-        return (
-          <>
-            <Tabs.Screen
+    // if (routeName === "Profile" ) {
+    //   return (
+    //     <>
+    //       <Tabs.Screen
+    //         name="Posts"
+    //         component={PostsScreen}
+    //         options={postsScreenOptions}
+    //       />
+    //       <Tabs.Screen
+    //         name="Profile"
+    //         component={ProfileScreen}
+    //         options={profileScreenOptions}
+    //       />
+    //       <Tabs.Screen
+    //         name="CreatePosts"
+    //         component={CreatePostsScreen}
+    //         options={createPostsScreenOptions}
+    //       />
+    //     </>
+    //   )} else {
+    //     return (
+    //       <>
+    //         <Tabs.Screen
+    //           name="Posts"
+    //           component={PostsScreen}
+    //           options={postsScreenOptions}
+    //         />
+    //         <Tabs.Screen
+    //           name="CreatePosts"
+    //           component={CreatePostsScreen}
+    //           options={createPostsScreenOptions}
+    //         />
+    //         <Tabs.Screen
+    //           name="Profile"
+    //           component={ProfileScreen}
+    //           options={profileScreenOptions}
+    //         />
+    //       </>
+    //     )}
+    // }
+
+  return (
+    <Tabs.Navigator
+      screenOptions={({ route }) => ({
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          height: 83,
+          justifyContent: "center",
+          alignItems: "center",
+        },
+      })}
+      backBehavior="none"
+    >
+   <Tabs.Screen
               name="Posts"
               component={PostsScreen}
               options={postsScreenOptions}
@@ -132,23 +161,6 @@ function Home({ navigation, route }) {
               component={ProfileScreen}
               options={profileScreenOptions}
             />
-          </>
-        )}
-    }
-
-  return (
-    <Tabs.Navigator
-      screenOptions={({ route }) => ({
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          height: 83,
-          justifyContent: "center",
-          alignItems: "center",
-        },
-      })}
-      backBehavior="none"
-    >
-      {getHeaderTitle(route)}
     </Tabs.Navigator>
   );
 }
