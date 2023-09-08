@@ -12,7 +12,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
-import SVGlocation from "../assets/images/map-pin.svg"
+import SVGlocation from "../assets/images/map-pin.svg";
 import SubmitButton from "../components/SubmitButton";
 
 function CreatePostsScreen({ navigation, route }) {
@@ -32,16 +32,25 @@ function CreatePostsScreen({ navigation, route }) {
       if (status !== "granted") {
         console.log("Permission to access location was denied");
       }
-
-      let location = await Location.getCurrentPositionAsync({});
+      let currentLocation = await Location.getCurrentPositionAsync({});
       const coords = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+        accuracy: currentLocation.coords.accuracy,
       };
       setLocation(coords);
+      const reverseGeocodedAddress = await Location.reverseGeocodeAsync({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
+      setAddress({
+        city: reverseGeocodedAddress[0].city,
+        country: reverseGeocodedAddress[0].country,
+      });
     })();
   }, []);
-
+  
+  
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -49,40 +58,31 @@ function CreatePostsScreen({ navigation, route }) {
       setHasPermission(status === "granted");
     })();
   }, []);
-
+  
   if (hasPermission === null) {
     return <View />;
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
-
+  
   const clearPage = () => {
     setPhoto(null);
     setUserLocation(null);
     setName(null);
   };
-
-  const handleSubmit = async () => {
+  
+  const handleSubmit = () => {
     // if (userLocation){ const geocodedLocation = await Location.geocodeAsync(userLocation)}
-    if (!userLocation && location) {
-      const reverseGeocodedAddress = await Location.reverseGeocodeAsync(
-        location
-      );
-      setAddress({
-        city: reverseGeocodedAddress[0].city,
-        country: reverseGeocodedAddress[0].country,
-      });
-    }
-    if (address || userLocation) {
-      setPictureData({
-        photo,
-        location: userLocation ? userLocation : address,
-        name,
-      });
-      clearPage();
-      navigation.navigate("Posts");
-    }
+    setPictureData({
+      photo,
+      address: userLocation ? userLocation : address,
+      name: name ? name : "",
+      location,
+    });
+    console.log(pictureData);
+    clearPage();
+    navigation.navigate("Posts");
   };
 
   return (
@@ -144,7 +144,11 @@ function CreatePostsScreen({ navigation, route }) {
         style={[styles.input, { marginBottom: 16 }]}
       />
       <View style={{ position: "relative", marginBottom: 32 }}>
-      <SVGlocation width={24} height={24} style={{ position: "absolute", left: 0, top: 13 }}/>
+        <SVGlocation
+          width={24}
+          height={24}
+          style={{ position: "absolute", left: 0, top: 13 }}
+        />
         <TextInput
           style={[styles.input, { paddingLeft: 28 }]}
           placeholder="Місцевість..."
