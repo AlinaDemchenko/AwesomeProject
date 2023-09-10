@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Alert,
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
@@ -11,27 +12,61 @@ import {
   View,
 } from "react-native";
 import { Formik } from "formik";
+import { loginSchema } from "../utils/yupSchema";
+import { useDispatch, useSelector } from "react-redux";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/firebase-config";
+import {
+  changeAvatar,
+  setUserLogin,
+  setUserToken,
+  signIn,
+} from "../redux/userReducer";
 import Title from "../components/Title";
 import Input from "../components/Input";
 import FormField from "../components/FormField";
 import SubmitButton from "../components/SubmitButton";
-import { loginSchema } from "../utils/yupSchema";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function LoginScreen({ navigation }) {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [passwordVisibility, setPasswordVisibility] = useState(true);
+  const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.authentication.user);
 
-  async function clearLocalStorage() {
-    try {
-      await AsyncStorage.clear();
-      console.log('Локальное хранилище очищено.');
-    } catch (error) {
-      console.error('Произошла ошибка при очистке локального хранилища:', error);
-    }
-  }
-   clearLocalStorage();
+  useEffect(() => {
+    if (userData) navigation.navigate("Home");
+  }, [userData]);
+
+  const handleSignIn = () => {
+    signInWithEmailAndPassword(auth, user.email, user.password)
+      .then((userCredential) => {
+        const authUserData = {
+          name: userCredential.user.displayName,
+          email: userCredential.user.email,
+          photoURL: userCredential.user.photoURL,
+          token: userCredential.user.stsTokenManager.accessToken,
+        };
+        dispatch(signIn(authUserData));
+        const currentUser = auth.currentUser;
+        console.log("currentUser: ", currentUser);
+        if (currentUser !== null) {
+          dispatch(changeAvatar(currentUser.photoURL));
+          dispatch(setUserLogin(currentUser.displayName));
+        }
+        setUser(null);
+      })
+      .catch((error) => {
+        if (error.code === "auth/user-not-found") {
+          Alert.alert("Невірний email");
+        } else if (error.code === "auth/wrong-password") {
+          Alert.alert("Невірний пароль");
+        } else {
+          console.log(error.code, error.message);
+        }
+      });
+  };
 
   const handlePressIn = () => {
     setPasswordVisibility(false);
@@ -59,9 +94,11 @@ function LoginScreen({ navigation }) {
               validationSchema={loginSchema}
               initialValues={{ email: "", password: "" }}
               onSubmit={(values, { resetForm }) => {
-                resetForm();
-                console.log(values);
-                navigation.navigate("Home");
+                setUser(values);
+                if (user) {
+                  resetForm();
+                  handleSignIn();
+                }
               }}
             >
               {({ handleChange, handleSubmit, values, errors, touched }) => (

@@ -5,9 +5,8 @@ import MapView, { Marker } from "react-native-maps";
 
 function MapScreen() {
   const { params: { post } } = useRoute();
-  console.log(post);
 
-  if (post.location?.length === 0){
+  if (!post.latitude){
  userLocationCoords()
   }
 
@@ -31,9 +30,9 @@ function MapScreen() {
       <MapView
         style={styles.mapStyle}
         region={regionFrom(
-          post.location.latitude,
-          post.location.longitude,
-          post.location.accuracy
+          post.latitude,
+          post.longitude,
+          post.accuracy
         )}
         mapType="standard"
         minZoomLevel={15}
@@ -42,7 +41,7 @@ function MapScreen() {
       >
         <Marker
           title={post.address}
-          coordinate={{ latitude: post.location.latitude, longitude: post.location.longitude }}
+          coordinate={{ latitude: post.latitude, longitude: post.longitude }}
           // description={}
         />
       </MapView>

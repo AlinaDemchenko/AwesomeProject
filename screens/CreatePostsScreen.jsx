@@ -7,12 +7,15 @@ import {
   Image,
   TextInput,
   Alert,
+  Pressable,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
-import { addPost } from "../redux/reducer";
+import { useSelector } from "react-redux";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../firebase/firebase-config";
+import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
 import SVGlocation from "../assets/images/map-pin.svg";
@@ -27,7 +30,19 @@ function CreatePostsScreen({ navigation }) {
   const [location, setLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [address, setAddress] = useState(null);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+  const user = useSelector((state) => state.authentication.user);
+  const token = user ? user.token : null;
+
+  const writeDataToFirestore = async (post) => {
+    try {
+      const docRef = await addDoc(collection(db, "Posts"), post);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      throw e;
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -45,8 +60,7 @@ function CreatePostsScreen({ navigation }) {
         longitude: currentLocation.coords.longitude,
         accuracy: currentLocation.coords.accuracy,
       });
-      setAddress(`${reverseGeocodedAddress[0].city},
-      ${reverseGeocodedAddress[0].country}`);
+      setAddress(`${reverseGeocodedAddress[0].city}, ${reverseGeocodedAddress[0].country}`);
     })();
   }, []);
 
@@ -79,53 +93,74 @@ function CreatePostsScreen({ navigation }) {
     }
   };
 
+  const handleAddPicture = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      if (!result.canceled) {
+        const pictureURL = result.assets[0].uri;
+        setPhoto(pictureURL);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   const getUserLocationCoords = async () => {
     const geocodedLocation = await Location.geocodeAsync(userLocation);
-    // console.log("geocodedLocation: ", geocodedLocation);
     if (!geocodedLocation[0]?.longitude) {
-      // console.log(geocodedLocation[0]?.longitude);
       Alert.alert(`Failed to get coordinates of ${userLocation}`);
     }
     if (geocodedLocation[0]?.longitude) {
-      return geocodedLocation[0]
+      return geocodedLocation[0];
     }
   };
 
   const handleSubmit = async () => {
+    const date = new Date().toISOString();
     if (userLocation) {
-    const userCoords = await getUserLocationCoords();
-      if(userCoords){
-        dispatch(
-          addPost({
-            photo,
-            address: userLocation,
-            name: name.length > 0 ? name : "",
-            location: userCoords,
-          })
-          );
-
-      console.log('location: ', location);
-          navigation.navigate("Posts");
-          clearPage();
-          return
+      const userCoords = await getUserLocationCoords();
+      const post = {
+        date,
+        photo,
+        address: userLocation,
+        name: name.length > 0 ? name : "",
+        accuracy: 0,
+        longitude: userCoords.longitude,
+        latitude: userCoords.latitude,
+        token
+      };
+      if (userCoords) {
+        // dispatch(addPost(post));
+        writeDataToFirestore(post);
+        navigation.navigate("Posts");
+        clearPage();
+        return;
       }
     }
     if (location && !userLocation) {
-      dispatch(
-        addPost({
-          photo,
-         address,
-          name: name.length > 0 ? name : "",
-          location,
-        })
-        );
+      const post = {
+        date,
+        photo,
+        address,
+        name: name.length > 0 ? name : "",
+        accuracy: location.accuracy,
+        longitude: location.longitude,
+        latitude: location.latitude,
+        token
+      };
+      // dispatch(addPost(post));
+      writeDataToFirestore(post);
+      navigation.navigate("Posts");
+      clearPage();
+    }
+  };
 
-      console.log('location: ', location);
-        navigation.navigate("Posts");
-        clearPage();
-      }
-    };
-
+  
   return (
     <View style={styles.createContainer}>
       <View style={styles.photoBlock}>
@@ -158,16 +193,17 @@ function CreatePostsScreen({ navigation }) {
           </Camera>
         )}
       </View>
-      <Text
-        style={{
-          color: "#BDBDBD",
-          fontSize: 16,
-          marginBottom: 32,
-          fontFamily: "Roboto",
-        }}
-      >
-        {photo ? "Редагувати фото" : "Завантажте фото"}
-      </Text>
+      <Pressable style={{ marginBottom: 32 }} onPress={handleAddPicture}>
+        <Text
+          style={{
+            color: "#BDBDBD",
+            fontSize: 16,
+            fontFamily: "Roboto",
+          }}
+        >
+          {photo ? "Редагувати фото" : "Завантажте фото"}
+        </Text>
+      </Pressable>
       <TextInput
         onChangeText={setName}
         value={name}

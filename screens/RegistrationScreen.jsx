@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Alert,
+  Image,
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
@@ -12,7 +14,17 @@ import {
 } from "react-native";
 import { Formik } from "formik";
 import { registrationSchema } from "../utils/yupSchema";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../firebase/firebase-config";
+import { useDispatch, useSelector } from "react-redux";
+import { signIn } from "../redux/userReducer";
+import * as ImagePicker from "expo-image-picker";
 import SVGAdd from "../assets/images/add.svg";
+import SVGdelete from "../assets/images/delete.svg";
 import Input from "../components/Input";
 import Title from "../components/Title";
 import FormField from "../components/FormField";
@@ -23,6 +35,66 @@ function RegistrationScreen({ navigation }) {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [passwordVisibility, setPasswordVisibility] = useState(true);
+  const [avatar, setAvatar] = useState(null);
+  const [user, setUser] = useState(null);
+  const userData = useSelector((state) => state.authentication.user);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (userData) navigation.navigate("Home");
+  }, [userData]);
+
+  const handleSignUp = () => {
+    createUserWithEmailAndPassword(auth, user.email, user.password)
+      .then((userCredential) => {
+        const updatedUser = {
+          displayName: user.login,
+          photoURL: avatar ? avatar : null,
+        };
+        return updateProfile(userCredential.user, updatedUser).then(() => {
+          return signInWithEmailAndPassword(
+            auth,
+            user.email,
+            user.password
+          ).then(() => {
+            const userData = {
+              email: userCredential.user.email,
+              token: userCredential.user.uid }
+            dispatch(
+              signIn({
+                ...userData,
+                ...updatedUser,
+              })
+            );
+
+          });
+        });
+      })
+      .catch((error) => {
+        if (error.code === "auth/email-already-in-use") {
+          Alert.alert("Користувач з таким email вже зареєстрований");
+        } else {
+          console.log(error.code, error.message);
+        }
+      });
+  };
+
+  const handleAddAvatar = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatar(null);
+  };
 
   const handlePressIn = () => {
     setPasswordVisibility(false);
@@ -45,12 +117,28 @@ function RegistrationScreen({ navigation }) {
           style={styles.imageBackground}
         >
           <View style={styles.registrationScreen}>
-            <View style={styles.userImage}>
-              <SVGAdd
-                width={25}
-                height={25}
-                style={{ position: "absolute", right: -12, bottom: 14 }}
-              />
+            <View style={{ position: "absolute", top: -60 }}>
+              {avatar ? (
+                <>
+                  <Image style={styles.userImage} source={{ uri: avatar }} />
+                  <Pressable
+                    onPress={handleRemoveAvatar}
+                    style={{ position: "absolute", right: -12, bottom: 14 }}
+                  >
+                    <SVGdelete width={25} height={25} />
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <View style={styles.userImage}></View>
+                  <Pressable
+                    onPress={handleAddAvatar}
+                    style={{ position: "absolute", right: -12, bottom: 14 }}
+                  >
+                    <SVGAdd width={25} height={25} />
+                  </Pressable>
+                </>
+              )}
             </View>
             <Title style={{ fontFamily: "Roboto-Medium", fontSize: 30 }}>
               Реєстрація
@@ -59,9 +147,11 @@ function RegistrationScreen({ navigation }) {
               validationSchema={registrationSchema}
               initialValues={{ email: "", password: "", login: "" }}
               onSubmit={(values, { resetForm }) => {
-                resetForm();
-                console.log(values);
-                navigation.navigate("Home");
+                setUser(values);
+                if (user) {
+                  resetForm();
+                  handleSignUp();
+                }
               }}
             >
               {({ handleChange, handleSubmit, values, errors, touched }) => (
@@ -226,8 +316,6 @@ export const styles = StyleSheet.create({
     height: 120,
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
-    position: "absolute",
-    top: -60,
   },
 });
 

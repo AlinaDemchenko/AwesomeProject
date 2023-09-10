@@ -2,14 +2,31 @@ import PostsScreen from "./PostsScreen";
 import CreatePostsScreen from "./CreatePostsScreen";
 import ProfileScreen from "./ProfileScreen";
 import SVGLogout from "../assets/images/log-out.svg";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebase-config";
 import { Feather } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { AntDesign } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { signIn } from "../redux/userReducer";
+import { clearPosts } from "../redux/contentReducer";
 
-function Home({ navigation, route }) {
+function Home({ navigation }) {
   const Tabs = createBottomTabNavigator();
+  const dispatch = useDispatch();
+
+  const handleSignOut = () => {
+    dispatch(signIn(null));
+    dispatch(clearPosts())
+    signOut(auth)
+      .then(() => {
+        navigation.navigate("Login");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const createPostsScreenOptions = {
     tabBarIcon: ({ focused }) => (
@@ -50,11 +67,7 @@ function Home({ navigation, route }) {
           { backgroundColor: focused ? "#FF6C00" : "#fff" },
         ]}
       >
-        <Feather
-          name="grid"
-          size={24}
-          color={focused ? "#fff" : "#212121cc"}
-        />
+        <Feather name="grid" size={24} color={focused ? "#fff" : "#212121cc"} />
       </View>
     ),
     title: "Публікації",
@@ -63,14 +76,11 @@ function Home({ navigation, route }) {
     headerTitleStyle: styles.headerTitleStyle,
     headerTitleAlign: "center",
     headerRight: () => (
-      <TouchableOpacity
-        style={{ marginRight: 16 }}
-        onPress={() => navigation.navigate("Login")}
-      >
+      <TouchableOpacity style={{ marginRight: 16 }} onPress={handleSignOut}>
         <SVGLogout width={24} height={24} />
       </TouchableOpacity>
     ),
-  }
+  };
 
   const profileScreenOptions = {
     headerShown: false,
@@ -88,51 +98,51 @@ function Home({ navigation, route }) {
         />
       </View>
     ),
-  }
+  };
 
   // function getHeaderTitle(route) {
   //   const routeName = getFocusedRouteNameFromRoute(route) ?? "Posts";
 
-    // if (routeName === "Profile" ) {
-    //   return (
-    //     <>
-    //       <Tabs.Screen
-    //         name="Posts"
-    //         component={PostsScreen}
-    //         options={postsScreenOptions}
-    //       />
-    //       <Tabs.Screen
-    //         name="Profile"
-    //         component={ProfileScreen}
-    //         options={profileScreenOptions}
-    //       />
-    //       <Tabs.Screen
-    //         name="CreatePosts"
-    //         component={CreatePostsScreen}
-    //         options={createPostsScreenOptions}
-    //       />
-    //     </>
-    //   )} else {
-    //     return (
-    //       <>
-    //         <Tabs.Screen
-    //           name="Posts"
-    //           component={PostsScreen}
-    //           options={postsScreenOptions}
-    //         />
-    //         <Tabs.Screen
-    //           name="CreatePosts"
-    //           component={CreatePostsScreen}
-    //           options={createPostsScreenOptions}
-    //         />
-    //         <Tabs.Screen
-    //           name="Profile"
-    //           component={ProfileScreen}
-    //           options={profileScreenOptions}
-    //         />
-    //       </>
-    //     )}
-    // }
+  // if (routeName === "Profile" ) {
+  //   return (
+  //     <>
+  //       <Tabs.Screen
+  //         name="Posts"
+  //         component={PostsScreen}
+  //         options={postsScreenOptions}
+  //       />
+  //       <Tabs.Screen
+  //         name="Profile"
+  //         component={ProfileScreen}
+  //         options={profileScreenOptions}
+  //       />
+  //       <Tabs.Screen
+  //         name="CreatePosts"
+  //         component={CreatePostsScreen}
+  //         options={createPostsScreenOptions}
+  //       />
+  //     </>
+  //   )} else {
+  //     return (
+  //       <>
+  //         <Tabs.Screen
+  //           name="Posts"
+  //           component={PostsScreen}
+  //           options={postsScreenOptions}
+  //         />
+  //         <Tabs.Screen
+  //           name="CreatePosts"
+  //           component={CreatePostsScreen}
+  //           options={createPostsScreenOptions}
+  //         />
+  //         <Tabs.Screen
+  //           name="Profile"
+  //           component={ProfileScreen}
+  //           options={profileScreenOptions}
+  //         />
+  //       </>
+  //     )}
+  // }
 
   return (
     <Tabs.Navigator
@@ -146,21 +156,21 @@ function Home({ navigation, route }) {
       })}
       backBehavior="none"
     >
-   <Tabs.Screen
-              name="Posts"
-              component={PostsScreen}
-              options={postsScreenOptions}
-            />
-            <Tabs.Screen
-              name="CreatePosts"
-              component={CreatePostsScreen}
-              options={createPostsScreenOptions}
-            />
-            <Tabs.Screen
-              name="Profile"
-              component={ProfileScreen}
-              options={profileScreenOptions}
-            />
+      <Tabs.Screen
+        name="Posts"
+        component={PostsScreen}
+        options={postsScreenOptions}
+      />
+      <Tabs.Screen
+        name="CreatePosts"
+        component={CreatePostsScreen}
+        options={createPostsScreenOptions}
+      />
+      <Tabs.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={profileScreenOptions}
+      />
     </Tabs.Navigator>
   );
 }
