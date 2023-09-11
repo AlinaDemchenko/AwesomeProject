@@ -6,15 +6,15 @@ import {
   StyleSheet,
   Image,
   TextInput,
-  Alert,
   Pressable,
 } from "react-native";
 import { Camera } from "expo-camera";
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase-config";
+import { useDispatch, useSelector } from "react-redux";
+import { addPost } from "../redux/contentReducer";
+import { getUserLocationCoords } from "../utils/location";
+import { writeDataToFirestore } from "../firebase/firebase-utils";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
@@ -30,19 +30,9 @@ function CreatePostsScreen({ navigation }) {
   const [location, setLocation] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [address, setAddress] = useState(null);
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.authentication.user);
   const token = user ? user.token : null;
-
-  const writeDataToFirestore = async (post) => {
-    try {
-      const docRef = await addDoc(collection(db, "Posts"), post);
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-      throw e;
-    }
-  };
 
   useEffect(() => {
     (async () => {
@@ -60,7 +50,9 @@ function CreatePostsScreen({ navigation }) {
         longitude: currentLocation.coords.longitude,
         accuracy: currentLocation.coords.accuracy,
       });
-      setAddress(`${reverseGeocodedAddress[0].city}, ${reverseGeocodedAddress[0].country}`);
+      setAddress(
+        `${reverseGeocodedAddress[0].city}, ${reverseGeocodedAddress[0].country}`
+      );
     })();
   }, []);
 
@@ -78,6 +70,46 @@ function CreatePostsScreen({ navigation }) {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
+  const handleSubmit = async () => {
+    const date = new Date().toISOString();
+    if (userLocation) {
+      const userCoords = await getUserLocationCoords(userLocation);
+      const post = {
+        date,
+        photo,
+        address: userLocation,
+        name: name.length > 0 ? name : "",
+        accuracy: 0,
+        longitude: userCoords.longitude,
+        latitude: userCoords.latitude,
+        token,
+      };
+      if (userCoords) {
+        dispatch(addPost(post));
+        writeDataToFirestore(post);
+        navigation.navigate("Posts");
+        clearPage();
+        return;
+      }
+    }
+    if (location && !userLocation) {
+      const post = {
+        date,
+        photo,
+        address,
+        name: name.length > 0 ? name : "",
+        accuracy: location.accuracy,
+        longitude: location.longitude,
+        latitude: location.latitude,
+        token,
+      };
+      dispatch(addPost(post));
+      writeDataToFirestore(post);
+      navigation.navigate("Posts");
+      clearPage();
+    }
+  };
 
   const clearPage = () => {
     setPhoto(null);
@@ -110,57 +142,6 @@ function CreatePostsScreen({ navigation }) {
     }
   };
 
-  const getUserLocationCoords = async () => {
-    const geocodedLocation = await Location.geocodeAsync(userLocation);
-    if (!geocodedLocation[0]?.longitude) {
-      Alert.alert(`Failed to get coordinates of ${userLocation}`);
-    }
-    if (geocodedLocation[0]?.longitude) {
-      return geocodedLocation[0];
-    }
-  };
-
-  const handleSubmit = async () => {
-    const date = new Date().toISOString();
-    if (userLocation) {
-      const userCoords = await getUserLocationCoords();
-      const post = {
-        date,
-        photo,
-        address: userLocation,
-        name: name.length > 0 ? name : "",
-        accuracy: 0,
-        longitude: userCoords.longitude,
-        latitude: userCoords.latitude,
-        token
-      };
-      if (userCoords) {
-        // dispatch(addPost(post));
-        writeDataToFirestore(post);
-        navigation.navigate("Posts");
-        clearPage();
-        return;
-      }
-    }
-    if (location && !userLocation) {
-      const post = {
-        date,
-        photo,
-        address,
-        name: name.length > 0 ? name : "",
-        accuracy: location.accuracy,
-        longitude: location.longitude,
-        latitude: location.latitude,
-        token
-      };
-      // dispatch(addPost(post));
-      writeDataToFirestore(post);
-      navigation.navigate("Posts");
-      clearPage();
-    }
-  };
-
-  
   return (
     <View style={styles.createContainer}>
       <View style={styles.photoBlock}>

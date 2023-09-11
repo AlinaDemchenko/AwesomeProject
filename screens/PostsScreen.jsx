@@ -2,7 +2,7 @@ import { StyleSheet, ScrollView, View, Image, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Post from "../components/Post";
 import { collection, getDocs } from "firebase/firestore";
-import { addPost } from "../redux/contentReducer";
+import { getPosts } from "../redux/contentReducer";
 import { useEffect } from "react";
 import { db } from "../firebase/firebase-config";
 
@@ -14,21 +14,14 @@ function PostsScreen() {
   const login = user ? user.displayName : null;
   const email = user ? user.email : null;
 
-  const getDataFromFirestore = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, "Posts"));
-      // snapshot.forEach((doc) => console.log(`${doc.id} =>`, doc.data()));
-      const allPosts = snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
-      dispatch(addPost(allPosts))
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  };
-
   useEffect(() => {
-    getDataFromFirestore();
+    (async () => {
+      const snapshot = await getDocs(collection(db, "Posts"));
+      const allPosts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      dispatch(getPosts(allPosts))
+    })();
   }, []);
+
 
   return (
     <ScrollView style={styles.postsContainer}>
@@ -54,7 +47,7 @@ function PostsScreen() {
         </View>
       </View>
       {posts?.length > 0 &&
-        posts.map((post) => <Post post={post.data} key={post.id} />)}
+        posts.map((post) => <Post post={post} key={post.id} />)}
     </ScrollView>
   );
 }

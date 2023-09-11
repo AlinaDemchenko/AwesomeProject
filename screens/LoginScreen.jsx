@@ -13,13 +13,12 @@ import {
 } from "react-native";
 import { Formik } from "formik";
 import { loginSchema } from "../utils/yupSchema";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase-config";
 import {
   changeAvatar,
   setUserLogin,
-  setUserToken,
   signIn,
 } from "../redux/userReducer";
 import Title from "../components/Title";
@@ -33,20 +32,16 @@ function LoginScreen({ navigation }) {
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const [user, setUser] = useState(null);
   const dispatch = useDispatch();
-  const userData = useSelector((state) => state.authentication.user);
-
-  useEffect(() => {
-    if (userData) navigation.navigate("Home");
-  }, [userData]);
 
   const handleSignIn = () => {
+    navigation.navigate("Home");
     signInWithEmailAndPassword(auth, user.email, user.password)
       .then((userCredential) => {
         const authUserData = {
-          name: userCredential.user.displayName,
+          displayName: userCredential.user.displayName,
           email: userCredential.user.email,
           photoURL: userCredential.user.photoURL,
-          token: userCredential.user.stsTokenManager.accessToken,
+          token: userCredential.user.uid,
         };
         dispatch(signIn(authUserData));
         const currentUser = auth.currentUser;
@@ -174,7 +169,6 @@ function LoginScreen({ navigation }) {
                   </FormField>
                   <SubmitButton
                     onPress={handleSubmit}
-                    // disabled={!isValid || !touched.email || !touched.password}
                   >
                     <Text
                       style={{

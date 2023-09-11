@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Image,
@@ -19,9 +19,11 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { auth } from "../firebase/firebase-config";
-import { useDispatch, useSelector } from "react-redux";
+import { auth, storage } from "../firebase/firebase-config";
+import { useDispatch } from "react-redux";
 import { signIn } from "../redux/userReducer";
+import { ref, getDownloadURL} from "firebase/storage";
+import { uploadPhotoToFirebase } from "../firebase/firebase-utils";
 import * as ImagePicker from "expo-image-picker";
 import SVGAdd from "../assets/images/add.svg";
 import SVGdelete from "../assets/images/delete.svg";
@@ -37,14 +39,10 @@ function RegistrationScreen({ navigation }) {
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const [avatar, setAvatar] = useState(null);
   const [user, setUser] = useState(null);
-  const userData = useSelector((state) => state.authentication.user);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (userData) navigation.navigate("Home");
-  }, [userData]);
-
   const handleSignUp = () => {
+    navigation.navigate("Home");
     createUserWithEmailAndPassword(auth, user.email, user.password)
       .then((userCredential) => {
         const updatedUser = {
@@ -57,16 +55,17 @@ function RegistrationScreen({ navigation }) {
             user.email,
             user.password
           ).then(() => {
+            console.log("reg", userCredential.user.uid);
             const userData = {
               email: userCredential.user.email,
-              token: userCredential.user.uid }
+              token: userCredential.user.uid,
+            };
             dispatch(
               signIn({
                 ...userData,
                 ...updatedUser,
               })
             );
-
           });
         });
       })
@@ -86,9 +85,13 @@ function RegistrationScreen({ navigation }) {
       aspect: [4, 3],
       quality: 1,
     });
-
     if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
+      const avatarURL = result.assets[0].uri;
+      const photoId = new Date().getTime();
+      const imagePath = `images/${photoId}.jpg`;
+      await uploadPhotoToFirebase(avatarURL,imagePath)
+      const imageURL = await getDownloadURL(ref(storage, imagePath));
+      setAvatar(imageURL); 
     }
   };
 

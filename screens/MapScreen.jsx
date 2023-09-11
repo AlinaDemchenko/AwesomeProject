@@ -36,13 +36,10 @@ function MapScreen() {
         )}
         mapType="standard"
         minZoomLevel={15}
-        // onMapReady={() => console.log("Map is ready")}
-        // onRegionChange={() => console.log("Region change")}
       >
         <Marker
           title={post.address}
           coordinate={{ latitude: post.latitude, longitude: post.longitude }}
-          // description={}
         />
       </MapView>
     </View>

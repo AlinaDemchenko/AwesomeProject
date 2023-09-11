@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
 import SVGAdd from "../assets/images/add.svg";
 import SVGLogout from "../assets/images/log-out.svg";
 import SVGdelete from "../assets/images/delete.svg";
 import * as ImagePicker from "expo-image-picker";
+import Post from "../components/Post";
+import React, { useEffect, useState } from "react";
 import { signOut, updateProfile } from "firebase/auth";
-import { auth } from "../firebase/firebase-config";
+import { auth, storage } from "../firebase/firebase-config";
+import { ref, getDownloadURL} from "firebase/storage";
 import {
   Image,
   ImageBackground,
@@ -18,7 +20,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { changeAvatar, signIn } from "../redux/userReducer";
 import { clearPosts } from "../redux/contentReducer";
-import Post from "../components/Post";
+import { uploadPhotoToFirebase } from "../firebase/firebase-utils";
+
 
 function ProfileScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -27,10 +30,10 @@ function ProfileScreen({ navigation }) {
   [userPosts, setUserPosts] = useState();
   const avatar = user ? user.photoURL : null;
   const token = user ? user.token : null;
-  const name = user ? user.name : null;
+  const name = user ? user.displayName : null;
 
   useEffect(() => {
-    const filteredPosts = posts.filter(({data}) => data.token === token);
+    const filteredPosts = posts.filter((post) => post.token === token);
     setUserPosts(filteredPosts);
   }, [posts]);
 
@@ -46,8 +49,12 @@ function ProfileScreen({ navigation }) {
       if (!result.canceled) {
         const avatarURL = result.assets[0].uri;
         dispatch(changeAvatar(avatarURL));
+        const photoId = new Date().getTime();
+        const imagePath = `images/${photoId}.jpg`;
+        await uploadPhotoToFirebase(avatarURL,imagePath)
+        const imageURL = await getDownloadURL(ref(storage, imagePath));
         await updateProfile(auth.currentUser, {
-          photoURL: avatarURL,
+          photoURL: imageURL,
         });
       }
     } catch (error) {
@@ -136,7 +143,7 @@ function ProfileScreen({ navigation }) {
         </Text>
         <ScrollView style={{ height: "100%", width: "100%" }}>
           {userPosts?.length > 0 &&
-            userPosts.map((post) => <Post post={post.data} key={post.id} />)}
+            userPosts.map((post) => <Post post={post} key={post.id} />)}
         </ScrollView>
       </View>
     </ImageBackground>
@@ -156,11 +163,10 @@ export const styles = StyleSheet.create({
     backgroundColor: "white",
     justifyContent: "flex-start",
     alignItems: "center",
-    // maxHeight: 489,
+   height: "100%",
     width: "100%",
     paddingTop: 92,
     paddingHorizontal: 16,
-    paddingBottom: 144,
     borderTopRightRadius: 25,
     borderTopLeftRadius: 25,
     position: "relative",

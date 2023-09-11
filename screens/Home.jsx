@@ -103,47 +103,6 @@ function Home({ navigation }) {
   // function getHeaderTitle(route) {
   //   const routeName = getFocusedRouteNameFromRoute(route) ?? "Posts";
 
-  // if (routeName === "Profile" ) {
-  //   return (
-  //     <>
-  //       <Tabs.Screen
-  //         name="Posts"
-  //         component={PostsScreen}
-  //         options={postsScreenOptions}
-  //       />
-  //       <Tabs.Screen
-  //         name="Profile"
-  //         component={ProfileScreen}
-  //         options={profileScreenOptions}
-  //       />
-  //       <Tabs.Screen
-  //         name="CreatePosts"
-  //         component={CreatePostsScreen}
-  //         options={createPostsScreenOptions}
-  //       />
-  //     </>
-  //   )} else {
-  //     return (
-  //       <>
-  //         <Tabs.Screen
-  //           name="Posts"
-  //           component={PostsScreen}
-  //           options={postsScreenOptions}
-  //         />
-  //         <Tabs.Screen
-  //           name="CreatePosts"
-  //           component={CreatePostsScreen}
-  //           options={createPostsScreenOptions}
-  //         />
-  //         <Tabs.Screen
-  //           name="Profile"
-  //           component={ProfileScreen}
-  //           options={profileScreenOptions}
-  //         />
-  //       </>
-  //     )}
-  // }
-
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({

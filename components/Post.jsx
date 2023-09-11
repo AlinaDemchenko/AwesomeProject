@@ -4,7 +4,6 @@ import SVGlocation from "../assets/images/map-pin.svg";
 import { useNavigation } from "@react-navigation/native";
 
 const Post = ({post}) => {
-  console.log(post);
     const navigation = useNavigation();
   return (
     <View style={styles.postContainer}>
