@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Formik } from "formik";
 import { loginSchema } from "../utils/yupSchema";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase-config";
 import {
@@ -31,10 +31,14 @@ function LoginScreen({ navigation }) {
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const [user, setUser] = useState(null);
+  const authorizedUser = useSelector(state => state.authentication.user);
   const dispatch = useDispatch();
 
+useEffect(() => {
+if (authorizedUser) navigation.navigate("Home");
+}, [])
+
   const handleSignIn = () => {
-    navigation.navigate("Home");
     signInWithEmailAndPassword(auth, user.email, user.password)
       .then((userCredential) => {
         const authUserData = {

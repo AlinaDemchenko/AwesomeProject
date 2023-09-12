@@ -15,7 +15,7 @@ const Post = ({post}) => {
       </View>
       <Text style={styles.postText}>{post.name}</Text>
       <View style={[styles.postDetails, {justifyContent:"space-between"}]}>
-        <Pressable style={styles.postDetails} onPress={() => navigation.navigate("Comments")}>
+        <Pressable style={styles.postDetails} onPress={() => navigation.navigate("Comments", { post: post })}>
           <SVGcomment width={24} height={24} style={{ marginRight: 6 }} />
           <Text
             style={{ color: "#BDBDBD", fontFamily: "Roboto", fontSize: 16 }}

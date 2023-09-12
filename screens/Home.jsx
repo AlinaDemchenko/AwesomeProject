@@ -105,7 +105,7 @@ function Home({ navigation }) {
 
   return (
     <Tabs.Navigator
-      screenOptions={({ route }) => ({
+      screenOptions={() => ({
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 83,
