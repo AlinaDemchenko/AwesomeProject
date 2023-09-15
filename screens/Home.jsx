@@ -110,7 +110,10 @@ function Home({ navigation }) {
         tabBarStyle: {
           height: 83,
           justifyContent: "center",
-          alignItems: "center",
+          paddingTop: 9,
+          alignItems: "flex-start",
+          paddingHorizontal: 89,
+          
         },
       })}
       backBehavior="none"

@@ -2,9 +2,14 @@ import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import SVGcomment from "../assets/images/message-circle.svg";
 import SVGlocation from "../assets/images/map-pin.svg";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
-const Post = ({post}) => {
-    const navigation = useNavigation();
+const Post = ({ post }) => {
+  const navigation = useNavigation();
+  const allComments = useSelector((state) => state.content.comments);
+  const currentPostComments = allComments.filter(
+    (comment) => comment.postId === post.id
+  );
   return (
     <View style={styles.postContainer}>
       <View style={styles.photoBlock}>
@@ -14,16 +19,26 @@ const Post = ({post}) => {
         />
       </View>
       <Text style={styles.postText}>{post.name}</Text>
-      <View style={[styles.postDetails, {justifyContent:"space-between"}]}>
-        <Pressable style={styles.postDetails} onPress={() => navigation.navigate("Comments", { post: post })}>
+      <View style={[styles.postDetails, { justifyContent: "space-between" }]}>
+        <Pressable
+          style={styles.postDetails}
+          onPress={() =>
+            navigation.navigate("Comments", {
+              post,
+            })
+          }
+        >
           <SVGcomment width={24} height={24} style={{ marginRight: 6 }} />
           <Text
             style={{ color: "#BDBDBD", fontFamily: "Roboto", fontSize: 16 }}
           >
-            {post.comments ? post.comments : 0}
+            {currentPostComments ? currentPostComments.length : 0}
           </Text>
         </Pressable>
-        <Pressable style={styles.postDetails} onPress={() => navigation.navigate("Map", { post: post })}>
+        <Pressable
+          style={styles.postDetails}
+          onPress={() => navigation.navigate("Map", { post: post })}
+        >
           <SVGlocation width={24} height={24} style={{ marginRight: 4 }} />
           <Text
             style={{

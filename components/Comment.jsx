@@ -1,12 +1,10 @@
 import { View, Text, Image, StyleSheet } from "react-native";
-import React from "react";
 import { useSelector } from "react-redux";
 import {translateMonthNameToUkrainian } from "../utils/date";
 
 const Comment = ({commentData}) => {
- const userAvatar = useSelector(state => state.authentication.user.photoURL)
-  let currentUser = false;
-  console.log(commentData);
+ const userId = useSelector(state => state.authentication.user.token);
+const currentUser = commentData.userId === userId;
 
   return (
     <View
@@ -20,7 +18,7 @@ const Comment = ({commentData}) => {
       {!currentUser && (
         <Image
           style={{ width: 28, height: 28, borderRadius: 28, marginRight: 16 }}
-          source={{ uri: userAvatar }}
+          source={{ uri: commentData.avatar}}
         />
       )}
       <View
@@ -39,7 +37,7 @@ const Comment = ({commentData}) => {
       {currentUser && (
         <Image
           style={{ width: 28, height: 28, borderRadius: 28, marginLeft: 16 }}
-          source={{ uri: userAvatar }}
+          source={{ uri: commentData.avatar }}
         />
       )}
     </View>

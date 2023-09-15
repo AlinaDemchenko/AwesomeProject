@@ -4,7 +4,6 @@ import {
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -36,7 +35,7 @@ function LoginScreen({ navigation }) {
 
 useEffect(() => {
 if (authorizedUser) navigation.navigate("Home");
-}, [])
+}, [authorizedUser])
 
   const handleSignIn = () => {
     signInWithEmailAndPassword(auth, user.email, user.password)
@@ -49,7 +48,6 @@ if (authorizedUser) navigation.navigate("Home");
         };
         dispatch(signIn(authUserData));
         const currentUser = auth.currentUser;
-        console.log("currentUser: ", currentUser);
         if (currentUser !== null) {
           dispatch(changeAvatar(currentUser.photoURL));
           dispatch(setUserLogin(currentUser.displayName));

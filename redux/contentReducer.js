@@ -22,15 +22,26 @@ const contentSlice = createSlice({
     clearPosts: (state) => {
       state.posts = [];
     },
-    getPosts: (state, action) => {
+    setPosts: (state, action) => {
       state.posts = action.payload;
     },
-    addComment: (state, action) => {
-      state.comments.push(action.payload);
+    addComment: 
+    {
+      reducer: (state, action) => {
+        state.comments.push(action.payload);
+      },
+      prepare: (postData) => {
+        return { payload: { id: nanoid(), ...postData } };
+      },
     },
+    setComments: (state, action) => {
+      state.comments = action.payload;
+    },
+    clearComments: (state) => {
+      state.comments = [];
   },
-});
+}});
 
-export const { addPost, clearPosts, getPosts, addComment } =
+export const { addPost, clearPosts, setPosts, addComment, setComments, clearComments } =
   contentSlice.actions;
 export const contentReducer = contentSlice.reducer;

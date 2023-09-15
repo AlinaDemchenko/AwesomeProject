@@ -1,10 +1,10 @@
 import { StyleSheet, ScrollView, View, Image, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Post from "../components/Post";
-import { collection, getDocs } from "firebase/firestore";
-import { getPosts } from "../redux/contentReducer";
+import { setComments, setPosts } from "../redux/contentReducer";
 import { useEffect } from "react";
-import { db } from "../firebase/firebase-config";
+import { getCommentsFromFireStore, getPostsFromFireStore } from "../firebase/firebase-utils";
+// import { db } from "../firebase/firebase-config";
 
 function PostsScreen() {
   const posts = useSelector((state) => state.content.posts);
@@ -16,9 +16,10 @@ function PostsScreen() {
 
   useEffect(() => {
     (async () => {
-      const snapshot = await getDocs(collection(db, "Posts"));
-      const allPosts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      dispatch(getPosts(allPosts))
+      const allPosts = await getPostsFromFireStore();
+      dispatch(setPosts(allPosts));
+      const allComments = await getCommentsFromFireStore();
+      dispatch(setComments(allComments));
     })();
   }, []);
 
