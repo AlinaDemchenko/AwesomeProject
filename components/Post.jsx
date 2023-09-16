@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, Image, Pressable } from "react-native";
-import SVGcomment from "../assets/images/message-circle.svg";
-import SVGlocation from "../assets/images/map-pin.svg";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
+import SVGcomment from "../assets/images/message-circle.svg";
+import SVGlocation from "../assets/images/map-pin.svg";
+import SVGcommentFull from "../assets/images/message.svg"
 
 const Post = ({ post }) => {
   const navigation = useNavigation();
@@ -28,9 +29,11 @@ const Post = ({ post }) => {
             })
           }
         >
-          <SVGcomment width={24} height={24} style={{ marginRight: 6 }} />
+          {currentPostComments.length > 0 ? 
+           <SVGcommentFull width={24} height={24} style={{ marginRight: 6 }} /> :
+          <SVGcomment width={24} height={24} style={{ marginRight: 6 }} />}
           <Text
-            style={{ color: "#BDBDBD", fontFamily: "Roboto", fontSize: 16 }}
+            style={{ color: currentPostComments.length > 0 ? "#212121" : "#BDBDBD", fontFamily: "Roboto", fontSize: 16 }}
           >
             {currentPostComments ? currentPostComments.length : 0}
           </Text>

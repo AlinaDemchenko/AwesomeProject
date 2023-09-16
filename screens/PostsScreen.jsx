@@ -49,6 +49,7 @@ function PostsScreen() {
       </View>
       {posts?.length > 0 &&
         posts.map((post) => <Post post={post} key={post.id} />)}
+        <View style={{height: 46}}></View>
     </ScrollView>
   );
 }

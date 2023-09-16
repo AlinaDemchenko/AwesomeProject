@@ -9,7 +9,6 @@ const SendButton = ({onSend, disabled}) => {
       style={{
         position: "absolute",
         right: 8,
-        top: 8,
       }}
     >
       <SVGsend width={34} height={34} />

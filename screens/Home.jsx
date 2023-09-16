@@ -113,8 +113,7 @@ function Home({ navigation }) {
           paddingTop: 9,
           alignItems: "flex-start",
           paddingHorizontal: 89,
-          
-        },
+          },
       })}
       backBehavior="none"
     >

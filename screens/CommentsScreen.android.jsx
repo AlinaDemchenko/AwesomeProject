@@ -68,12 +68,13 @@ function CommentsScreen() {
   }, [allComments]);
 
   const handleSend = async () => {
+    if(comment.length > 0) {
     const date = getCurrentDate();
     const newComment = { text: comment, date, userId };
     await addCommentToFirestore({ ...newComment, postId: post.id, avatar });
     await dispatch(addComment({ ...newComment, postId: post.id, avatar }));
     getCurrentComments();
-    setComment(null);
+    setComment(null)}
   };
 
   return (
@@ -88,7 +89,7 @@ function CommentsScreen() {
         ]}
       >
         <TouchableOpacity
-          style={{ position: 'absolute', left: 16, bottom: 11,  zIndex: 3}}
+          style={{ position: "absolute", left: 16, bottom: 11, zIndex: 3 }}
           onPress={() => navigation.goBack()}
         >
           <AntDesign name="arrowleft" size={24} color="#212121cc" />
@@ -110,15 +111,15 @@ function CommentsScreen() {
               <Comment commentData={commentData} key={commentData.id} />
             ))}
         </ScrollView>
-
-        <View style={{ width: "100%", position: "relative" }}>
+        <View style={{ width: "100%", position: "relative", display: "flex", justifyContent: "center" }}>
           <TextInput
             style={styles.input}
-            maxLength={250}
+            maxLength={150}
             onChangeText={setComment}
             value={comment}
             placeholder="Коментувати..."
             placeholderTextColor="#BDBDBD"
+            multiline={true}
           />
           <SendButton onSend={handleSend} disabled={!comment} />
         </View>
@@ -147,7 +148,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    height: 50,
+    height: "auto",
+    minHeight: 50,
+    maxHeight: 75,
     width: "100%",
     borderWidth: 1,
     borderColor: "#E8E8E8",
@@ -156,7 +159,9 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto-Medium",
     fontSize: 16,
     color: "#212121",
-    paddingHorizontal: 16,
+    paddingLeft: 20,
+    paddingVertical: 8,
+    paddingRight: 42,
   },
   headerTitle: {
     fontFamily: "Roboto-Medium",
